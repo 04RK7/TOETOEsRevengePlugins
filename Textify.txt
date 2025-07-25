@@ -1,0 +1,67 @@
+/**
+ * @name Textify
+ * @version 1.0.0
+ * @description /textify komutu ile metni zalgo veya ters çevirme
+ * @author 04RK7
+ */
+
+module.exports = class Textify {
+    start() {
+        this.input = document.querySelector("textarea");
+        if (!this.input) return;
+
+        this.input.addEventListener("keydown", this.handleKeyDown);
+    }
+
+    stop() {
+        if (this.input) {
+            this.input.removeEventListener("keydown", this.handleKeyDown);
+        }
+    }
+
+    handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+            const value = this.input.value;
+
+            if (value.startsWith("/textify")) {
+                event.preventDefault();
+
+                const [, type, ...textParts] = value.split(" ");
+                const text = textParts.join(" ");
+
+                let result = text;
+                if (type === "zalgo") result = this.toZalgo(text);
+                if (type === "backwards") result = this.reverseText(text);
+
+                this.input.value = result;
+            }
+        }
+    };
+
+    reverseText(text) {
+        return text.split("").reverse().join("");
+    }
+
+    toZalgo(text) {
+        const zalgo_up = [
+            '\u030d', '\u030e', '\u0304', '\u0305',
+            '\u033f', '\u0311', '\u0306', '\u0310',
+            '\u0352', '\u0357', '\u0351', '\u0307',
+            '\u0308', '\u030a', '\u0342', '\u0343',
+            '\u0344', '\u034a', '\u034b', '\u034c',
+            '\u0303', '\u0302', '\u030c', '\u0350',
+            '\u0300', '\u0301', '\u030b', '\u030f',
+            '\u0312', '\u0313', '\u0314', '\u033d',
+            '\u0309', '\u0363', '\u0364', '\u0365',
+            '\u0366', '\u0367', '\u0368', '\u0369',
+            '\u036a', '\u036b', '\u036c', '\u036d',
+            '\u036e', '\u036f', '\u033e', '\u035b',
+            '\u0346', '\u031a'
+        ];
+
+        return text.split("").map(char => {
+            const zalgos = Array.from({ length: 5 }, () => zalgo_up[Math.floor(Math.random() * zalgo_up.length)]).join("");
+            return char + zalgos;
+        }).join("");
+    }
+};
